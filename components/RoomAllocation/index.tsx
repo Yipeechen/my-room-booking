@@ -18,6 +18,7 @@ const formatDefaultValues = (rooms: Room[], defaultRooms: RoomResult[]) => {
   })
 }
 
+const STEP = 1
 const RoomAllocation = ({ guest, rooms, onChange }: { guest: Guest, rooms: Room[], onChange?: (result: RoomResult[]) => void }) => {
   const defaultRooms = getDefaultRoomAllocation(guest, rooms)
   const totalPrice = defaultRooms.reduce((acc, val) => acc + val.price, 0)
@@ -42,6 +43,9 @@ const RoomAllocation = ({ guest, rooms, onChange }: { guest: Guest, rooms: Room[
   
   return (
     <div className="">
+      <div className='text-left text-gray-600 text-m bg-sky-100 p-4 rounded-md'>
+        {`尚未分配人數：${guest.adult - formValuesGuest.adult} 大人，${guest.child - formValuesGuest.child} 小孩`}
+      </div>
       {rooms.map((each, index) => {
         const adultInRoom = +formValues[index].adult
         const childInRoom = +formValues[index].child
@@ -69,7 +73,7 @@ const RoomAllocation = ({ guest, rooms, onChange }: { guest: Guest, rooms: Room[
               render={({ field }) => (
                 <CustomInputNumber
                   {...field}
-                  step={1}
+                  step={STEP}
                   onBlur={handleOnBlur}
                   min={childInRoom > 0 ? 1 : 0}
                   max={Math.min(
@@ -96,7 +100,7 @@ const RoomAllocation = ({ guest, rooms, onChange }: { guest: Guest, rooms: Room[
               render={({ field }) => (
                 <CustomInputNumber
                   {...field}
-                  step={1}
+                  step={STEP}
                   onBlur={handleOnBlur}
                   min={0}
                   max={Math.min(
