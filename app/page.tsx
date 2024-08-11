@@ -1,3 +1,5 @@
+'use client';
+
 import RoomAllocation from '../components/RoomAllocation'
 
 export default function Home() {
@@ -8,8 +10,7 @@ export default function Home() {
         <RoomAllocation
           guest={guest}
           rooms={rooms}
-          // TODO: onChange
-          // onChange={result => console.log(result)}
+          onChange={result => console.log(result)}
         />
       </div>
     </main>

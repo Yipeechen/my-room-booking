@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form'
 
 import { RoomResult, Guest, Room } from '../../utils'
@@ -20,8 +20,8 @@ const formatDefaultValues = (rooms: Room[], defaultRooms: RoomResult[]) => {
 
 const STEP = 1
 const RoomAllocation = ({ guest, rooms, onChange }: { guest: Guest, rooms: Room[], onChange?: (result: RoomResult[]) => void }) => {
-  const defaultRooms = getDefaultRoomAllocation(guest, rooms)
-  const totalPrice = defaultRooms.reduce((acc, val) => acc + val.price, 0)
+  const defaultRooms = useMemo(() => getDefaultRoomAllocation(guest, rooms), [guest, rooms])
+  const [totalPrice, setTotalPrice] = useState(defaultRooms.reduce((acc, val) => acc + val.price, 0))
   const { control, formState, watch } = useForm<{
     rooms: RoomResult[]
   }>({
@@ -40,7 +40,22 @@ const RoomAllocation = ({ guest, rooms, onChange }: { guest: Guest, rooms: Room[
     adult: acc.adult += +val.adult,
     child: acc.child += +val.child
   }), { adult: 0, child: 0 })
-  
+
+  useEffect(() => {
+    const subscription = watch((value) => {
+      if (value.rooms) {
+        const result = value.rooms.map((each, index) => ({
+          ...each,
+          price: (each?.adult || 0) * rooms[index]?.adultPrice + (each?.child || 0) * rooms[index]?.childPrice + rooms[index]?.roomPrice
+        }))
+        onChange?.(result as RoomResult[])
+        setTotalPrice(result.reduce((acc, val) => acc + val.price, 0))
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [watch, rooms, onChange])
+
   return (
     <div className="">
       <div className='text-left text-gray-600 text-m bg-sky-100 p-4 rounded-md'>
@@ -115,6 +130,7 @@ const RoomAllocation = ({ guest, rooms, onChange }: { guest: Guest, rooms: Room[
           {index < rooms.length - 1 && <hr className='my-4' />}
         </div>
       )})}
+      <div className='text-right text-gray-600 text-m bg-sky-100 p-4 rounded-md'>總價：{totalPrice}</div>
     </div>
   )
 }

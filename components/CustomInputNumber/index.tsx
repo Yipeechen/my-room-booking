@@ -64,7 +64,7 @@ const CustomInputNumber = (props: ICustomInputNumberProps) => {
         cancelable: true,
       }) as any
 
-      Object.defineProperty(event, 'target', { value: { value: newValue, name } })
+      Object.defineProperty(event, 'target', { value: { value: +newValue, name } })
       inputRef.current.dispatchEvent(event)
       onChange(event)
       }
