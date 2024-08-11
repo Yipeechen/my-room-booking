@@ -44,10 +44,15 @@ const RoomAllocation = ({ guest, rooms, onChange }: { guest: Guest, rooms: Room[
   useEffect(() => {
     const subscription = watch((value) => {
       if (value.rooms) {
-        const result = value.rooms.map((each, index) => ({
-          ...each,
-          price: (each?.adult || 0) * rooms[index]?.adultPrice + (each?.child || 0) * rooms[index]?.childPrice + rooms[index]?.roomPrice
-        }))
+        const result = value.rooms.map((each, index) => {
+          if (each?.adult === 0 && each?.child === 0) {
+            return null
+          }
+          return ({
+            ...each,
+            price: (each?.adult || 0) * rooms[index]?.adultPrice + (each?.child || 0) * rooms[index]?.childPrice + (rooms[index]?.roomPrice)
+        })
+        }).filter(each => each !== null)
         onChange?.(result as RoomResult[])
         setTotalPrice(result.reduce((acc, val) => acc + val.price, 0))
       }
